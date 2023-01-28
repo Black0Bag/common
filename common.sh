@@ -332,13 +332,14 @@ esac
 # 给feeds.conf.default增加插件源
 # 这里增加了源,要对应的删除/etc/opkg/distfeeds.conf插件源
 echo "
-src-git helloworld https://github.com/fw876/helloworld
-src-git passwall https://github.com/xiaorouji/openwrt-passwall;packages
-src-git passwall1 https://github.com/xiaorouji/openwrt-passwall;luci
-src-git passwall2 https://github.com/xiaorouji/openwrt-passwall2;main
-src-git danshui https://github.com/281677160/openwrt-package.git;${REPO_BRANCH}
-src-git nas https://github.com/linkease/nas-packages.git;master
-src-git nas_luci https://github.com/linkease/nas-packages-luci.git;main
+#src-git helloworld https://github.com/fw876/helloworld
+#src-git passwall https://github.com/xiaorouji/openwrt-passwall;packages
+#src-git passwall1 https://github.com/xiaorouji/openwrt-passwall;luci
+#src-git passwall2 https://github.com/xiaorouji/openwrt-passwall2;main
+#src-git danshui https://github.com/281677160/openwrt-package.git;${REPO_BRANCH}
+#src-git nas https://github.com/linkease/nas-packages.git;master
+#src-git nas_luci https://github.com/linkease/nas-packages-luci.git;main
+src-git small8 https://github.com/kenzok8/small-package
 " >> ${HOME_PATH}/feeds.conf.default
 sed -i '/^#/d' "${HOME_PATH}/feeds.conf.default"
 sed -i '/^$/d' "${HOME_PATH}/feeds.conf.default"
@@ -490,7 +491,7 @@ if [[ "${matrixtarget}" == "openwrt_amlogic" ]]; then
     sed -i "/DEFAULT_PACKAGES/ s/$/ $x/" ${HOME_PATH}/target/linux/armvirt/Makefile
   done
 
-  echo "修改luci-app-cpufreq一些代码适配amlogic"
+  echo "修改luci-app-cpufreq一些代码适配N1"
   sed -i 's/LUCI_DEPENDS.*/LUCI_DEPENDS:=\@\(arm\|\|aarch64\)/g' ${HOME_PATH}/feeds/luci/applications/luci-app-cpufreq/Makefile
   echo "为 armvirt 添加 autocore 支持"
   sed -i 's/TARGET_rockchip/TARGET_rockchip\|\|TARGET_armvirt/g' ${HOME_PATH}/package/lean/autocore/Makefile
@@ -498,7 +499,7 @@ fi
 }
 
 function Package_amlogic() {
-echo "正在执行：打包N1和景晨系列固件"
+echo "正在执行：打包N1固件"
 # 下载上游仓库
 cd ${GITHUB_WORKSPACE}
 git clone --depth 1 https://github.com/ophub/amlogic-s9xxx-openwrt.git ${GITHUB_WORKSPACE}/amlogic
@@ -514,12 +515,12 @@ if [[ -f "${AMLOGIC_SH_PATH}" ]]; then
   export amlogic_model="$(grep "amlogic_model=" "${AMLOGIC_SH_PATH}" 2>&1 | cut -d "=" -f2 |sed 's/\"//g' |sed "s/'//g")"
   [[ -z "${amlogic_model}" ]] && export amlogic_model="all"
   export amlogic_kernel="$(grep "amlogic_kernel=" "${AMLOGIC_SH_PATH}" 2>&1 | cut -d "=" -f2 |sed 's/\"//g' |sed "s/'//g")"
-  [[ -z "${amlogic_kernel}" ]] && export amlogic_kernel="5.15.25"
+  [[ -z "${amlogic_kernel}" ]] && export amlogic_kernel="5.15.90"
   export rootfs_size="$(grep "rootfs_size=" "${AMLOGIC_SH_PATH}" 2>&1 | cut -d "=" -f2 |sed 's/\"//g' |sed "s/'//g")"
   [[ -z "${rootfs_size}" ]] && export rootfs_size="960"
 else
   export amlogic_model="all"
-  export amlogic_kernel="5.15.25"
+  export amlogic_kernel="5.15.90"
   export rootfs_size="960"
 fi
 export kernel_repo="https://github.com/ophub/kernel/tree/main/pub"
@@ -685,7 +686,7 @@ fi
 if [[ `grep -c "CONFIG_PACKAGE_luci-theme-argon=y" ${HOME_PATH}/.config` -eq '1' ]]; then
   pmg="$(echo "$(date +%d)" | sed 's/^.//g')"
   mkdir -p ${HOME_PATH}/files/www/luci-static/argon/background
-  curl -fsSL  https://raw.githubusercontent.com/281677160/openwrt-package/usb/argon/jpg/${pmg}.jpg > ${HOME_PATH}/files/www/luci-static/argon/background/moren.jpg
+  curl -fsSL  https://ghproxy.net/https://raw.githubusercontent.com/kenzok8/small-package/main/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg > ${HOME_PATH}/files/www/luci-static/argon/background/moren.jpg
   if [[ $? -ne 0 ]]; then
     echo "拉取文件错误,请检测网络"
     exit 1
